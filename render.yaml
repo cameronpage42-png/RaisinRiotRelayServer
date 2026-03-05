@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: raisin-relay
+    env: node
+    buildCommand: npm install
+    startCommand: node server.js
+    envVars:
+      - key: RELAY_URL
+        value: https://raisin-relay.onrender.com   # ← change to your Render service URL after first deploy
+    healthCheckPath: /ping
