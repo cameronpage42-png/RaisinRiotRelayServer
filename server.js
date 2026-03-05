@@ -3,6 +3,9 @@ const { Server } = require('socket.io');
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const Filter = require('bad-words');
+
+const filter = new Filter();
 
 const app = express();
 const server = http.createServer(app);
@@ -89,7 +92,7 @@ io.on('connection', (socket) => {
             }
         });
 
-    // ── PLAYER ────────────────────────────────────────────────────────────────
+        // ── PLAYER ────────────────────────────────────────────────────────────────
     } else {
         const roomData = rooms[roomCode];
         if (!roomData) {
@@ -109,6 +112,9 @@ io.on('connection', (socket) => {
         // Player announces themselves
         socket.on('join', (data) => {
             if (!rooms[roomCode]) return;
+            if (data.username) {
+                try { data.username = filter.clean(data.username); } catch (e) { }
+            }
             rooms[roomCode].players[socket.id] = {
                 username: data.username,
                 avatarId: data.avatarId,
@@ -127,6 +133,13 @@ io.on('connection', (socket) => {
         // Player submits a word coordinate guess
         socket.on('guess', (data) => {
             if (!rooms[roomCode]) return;
+            const now = Date.now();
+            if (now - (socket.data.lastGuessTime || 0) < 1000) return; // 1 second rate limit
+            socket.data.lastGuessTime = now;
+
+            if (data.text) {
+                try { data.text = filter.clean(data.text); } catch (e) { }
+            }
             io.to(rooms[roomCode].hostSocketId).emit('player-guess', data);
         });
 
