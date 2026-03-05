@@ -9,30 +9,8 @@ const filter = new Filter();
 
 const app = express();
 const server = http.createServer(app);
-
-// Allow only our actual game and website to connect
-const allowedOrigins = [
-    'https://raisinriot.com',
-    'https://www.raisinriot.com',
-    'https://raisinriotwebsite.onrender.com',
-    'http://localhost:5173', // Local Vite dev server
-    'http://localhost:3000', // Alternative local dev server
-    'file://',               // Electron apps reading local files
-    undefined                // Electron apps sometimes send undefined origin
-];
-
 const io = new Server(server, {
-    cors: {
-        origin: (origin, callback) => {
-            // Allow if it's in the list, or if it's a non-browser client (like Electron usually)
-            if (!origin || allowedOrigins.includes(origin) || allowedOrigins.includes(origin.replace(/\/$/, ''))) {
-                callback(null, true);
-            } else {
-                callback(new Error('Not allowed by CORS'));
-            }
-        },
-        methods: ['GET', 'POST']
-    }
+    cors: { origin: '*', methods: ['GET', 'POST'] }
 });
 
 const PORT = process.env.PORT || 3334;

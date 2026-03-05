@@ -1295,16 +1295,13 @@
             // Save new session valid
             localStorage.setItem(STORAGE_KEY_SESSION, data.sessionId);
 
-            // If we have credentials and session is valid, Auto-Join (if not already joined OR if we just refreshed)
-            if (savedUsername && savedAvatar) {
+            // If we have credentials and session is valid, Auto-Join (if not already joined)
+            if (savedUsername && savedAvatar && !hasAutoJoined) {
                 hasAutoJoined = true;
                 myUsername = savedUsername;
                 selectedAvatar = savedAvatar;
 
-                // Always re-emit join on reconnect/refresh so the server knows we're back
                 socket.emit('join', { username: myUsername, avatarId: selectedAvatar });
-
-                // Ensure UI reflects active state
                 joinScreen.classList.remove('active');
                 gameScreen.classList.add('active');
                 document.getElementById('my-name').innerText = myUsername;
