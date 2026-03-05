@@ -113,7 +113,13 @@ io.on('connection', (socket) => {
         socket.on('join', (data) => {
             if (!rooms[roomCode]) return;
             if (data.username) {
-                try { data.username = filter.clean(data.username); } catch (e) { }
+                try {
+                    const originalName = data.username;
+                    data.username = filter.clean(data.username);
+                    if (originalName !== data.username) {
+                        socket.emit('name-filtered', { newName: data.username });
+                    }
+                } catch (e) { }
             }
             rooms[roomCode].players[socket.id] = {
                 username: data.username,
@@ -139,6 +145,9 @@ io.on('connection', (socket) => {
 
             if (data.text) {
                 try { data.text = filter.clean(data.text); } catch (e) { }
+            }
+            if (data.username) {
+                try { data.username = filter.clean(data.username); } catch (e) { }
             }
             io.to(rooms[roomCode].hostSocketId).emit('player-guess', data);
         });

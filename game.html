@@ -1309,6 +1309,13 @@
             }
         });
 
+        socket.on('name-filtered', (data) => {
+            myUsername = data.newName;
+            localStorage.setItem(STORAGE_KEY_USERNAME, myUsername);
+            const myNameEl = document.getElementById('my-name');
+            if (myNameEl) myNameEl.innerText = myUsername;
+        });
+
         socket.on('connect', () => {
             connectionStatus.innerText = "Connected";
             connectionStatus.style.color = "#22c55e";
